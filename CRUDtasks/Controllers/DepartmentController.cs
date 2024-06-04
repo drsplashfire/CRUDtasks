@@ -1,6 +1,5 @@
 ﻿using CRUDtasks.Data;
 using CRUDtasks.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Packaging;
@@ -22,6 +21,7 @@ namespace CRUDtasks.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Route("GetDepartments")]
         public async Task<IActionResult> GetDepartments()
         {
             var departments = await _context.Departments.ToListAsync();
@@ -38,8 +38,9 @@ namespace CRUDtasks.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
 
-        [HttpGet("{id}", Name = "GetDepartment")]
-        public async Task<IActionResult> GetDepartment(int id)
+        [HttpGet]
+        [Route("GetDepartmentById")]
+        public async Task<IActionResult> GetDepartmentById(int id)
         {
             var department = await _context.Departments.FindAsync(id);
             if (department == null)
@@ -56,6 +57,7 @@ namespace CRUDtasks.Controllers
         /// <returns></returns>
 
         [HttpPost]
+        [Route("CreateDepartment")]
         public async Task<IActionResult> CreateDepartment([FromBody] Department department)
         {
             if (!ModelState.IsValid)
@@ -76,12 +78,13 @@ namespace CRUDtasks.Controllers
         /// <param name="department"></param>
         /// <returns></returns>
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("UpdateDepartment")]
         public async Task<IActionResult> UpdateDepartment(int id, [FromBody] Department department)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState); // Include validation errors in response
+                return BadRequest(ModelState);
             }
 
             if (id != department.Id)
@@ -101,7 +104,7 @@ namespace CRUDtasks.Controllers
 
             // Update associated persons (assuming the Persons collection is replaced entirely)
             existingDepartment.Persons.Clear(); // Clear existing persons
-            existingDepartment.Persons.AddRange(department.Persons); // Add new persons
+            existingDepartment.Persons.AddRange(department.Persons);
 
             await _context.SaveChangesAsync();
 
@@ -113,7 +116,8 @@ namespace CRUDtasks.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeleteDepartment")]
         public async Task<IActionResult> DeleteDepartment(int id)
         {
             var department = await _context.Departments.FindAsync(id);

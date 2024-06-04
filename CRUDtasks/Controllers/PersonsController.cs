@@ -1,12 +1,13 @@
 ﻿using CRUDtasks.Data;
 using CRUDtasks.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CRUDtasks.Controllers
 {
-
     [ApiController]
     [Route("[controller]")]
     public class PersonController : ControllerBase
@@ -17,12 +18,12 @@ namespace CRUDtasks.Controllers
         {
             _context = context;
         }
-        /// <summary>
-        /// GET: all persons
-        /// </summary>
-        /// <returns></returns>
 
+        /// <summary>
+        /// GET: Get all persons
+        /// </summary>
         [HttpGet]
+        [Route("GetPersons")]
         public async Task<ActionResult<IEnumerable<Person>>> GetPersons()
         {
             var persons = await _context.Persons.Include(p => p.Department).ToListAsync();
@@ -34,10 +35,10 @@ namespace CRUDtasks.Controllers
         }
 
         /// <summary>
-        /// GET: a person by id
+        /// GET: Get a person by ID
         /// </summary>
-        /// <returns></returns>
-        [HttpGet("{id}", Name = "GetPerson")]
+        [HttpGet]
+        [Route("GetPersonById/{id}")]
         public async Task<ActionResult<Person>> GetPersonById(int id)
         {
             var person = await _context.Persons.FindAsync(id);
@@ -49,12 +50,10 @@ namespace CRUDtasks.Controllers
         }
 
         /// <summary>
-        /// PUT:Update an existing person
+        /// PUT: Update an existing person
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="person"></param>
-        /// <returns></returns>
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("PutPerson/{id}")]
         public async Task<IActionResult> PutPerson(int id, Person person)
         {
             if (id != person.Id)
@@ -82,13 +81,12 @@ namespace CRUDtasks.Controllers
 
             return NoContent();
         }
-        /// <summary>
-        /// POST: api/Person create a person resource
-        /// </summary>
-        /// <param name="person"></param>
-        /// <returns></returns>
 
+        /// <summary>
+        /// POST: Create a new person
+        /// </summary>
         [HttpPost]
+        [Route("PostPerson")]
         public async Task<ActionResult<Person>> PostPerson(Person person)
         {
             _context.Persons.Add(person);
@@ -98,12 +96,10 @@ namespace CRUDtasks.Controllers
         }
 
         /// <summary>
-        ///  // DELETE: a resource based on id
+        /// DELETE: Delete a person by ID
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeletePerson/{id}")]
         public async Task<IActionResult> DeletePerson(int id)
         {
             var person = await _context.Persons.FindAsync(id);
