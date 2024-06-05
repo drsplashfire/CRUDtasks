@@ -2,7 +2,6 @@
 using CRUDtasks.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Packaging;
 
 namespace CRUDtasks.Controllers
 {
@@ -16,10 +15,7 @@ namespace CRUDtasks.Controllers
         {
             _context = context;
         }
-        /// <summary>
-        /// GET: api/Department - Get all departments
-        /// </summary>
-        /// <returns></returns>
+
         [HttpGet]
         [Route("GetDepartments")]
         public async Task<IActionResult> GetDepartments()
@@ -32,29 +28,17 @@ namespace CRUDtasks.Controllers
             return Ok(departments);
         }
 
-        /// <summary>
-        ///  GET: api/Department/{id} - Get a department by ID
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-
         [HttpGet]
-        [Route("GetDepartmentById")]
+        [Route("GetDepartmentById/{id}")]
         public async Task<IActionResult> GetDepartmentById(int id)
         {
             var department = await _context.Departments.FindAsync(id);
             if (department == null)
             {
-                return NotFound();
+                return NotFound($"Department with ID {id} not found");
             }
             return Ok(department);
         }
-
-        /// <summary>
-        /// POST: api/Department - Create a new department
-        /// </summary>
-        /// <param name="department"></param>
-        /// <returns></returns>
 
         [HttpPost]
         [Route("CreateDepartment")]
@@ -68,18 +52,11 @@ namespace CRUDtasks.Controllers
             _context.Departments.Add(department);
             await _context.SaveChangesAsync();
 
-            return CreatedAtRoute("GetDepartment", new { id = department.Id }, department);
+            return CreatedAtAction(nameof(GetDepartmentById), new { id = department.Id }, department);
         }
 
-        /// <summary>
-        /// PUT: api/Department/{id} - Update an existing department
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="department"></param>
-        /// <returns></returns>
-
         [HttpPut]
-        [Route("UpdateDepartment")]
+        [Route("UpdateDepartment/{id}")]
         public async Task<IActionResult> UpdateDepartment(int id, [FromBody] Department department)
         {
             if (!ModelState.IsValid)
@@ -92,44 +69,35 @@ namespace CRUDtasks.Controllers
                 return BadRequest("ID in request body doesn't match ID in URL");
             }
 
-            var existingDepartment = await _context.Departments.Include(d => d.Persons).FirstOrDefaultAsync(d => d.Id == id);
+            var existingDepartment = await _context.Departments.FindAsync(id);
             if (existingDepartment == null)
             {
-                return NotFound();
+                return NotFound($"Department with ID {id} not found");
             }
 
             // Update department properties
             existingDepartment.DepartmentName = department.DepartmentName;
             existingDepartment.Address = department.Address;
 
-            // Update associated persons (assuming the Persons collection is replaced entirely)
-            existingDepartment.Persons.Clear(); // Clear existing persons
-            existingDepartment.Persons.AddRange(department.Persons);
-
             await _context.SaveChangesAsync();
 
-            return NoContent(); 
+            return NoContent();
         }
 
-        /// <summary>
-        /// DELETE: api/Department/{id} - Delete a department
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         [HttpDelete]
-        [Route("DeleteDepartment")]
+        [Route("DeleteDepartment/{id}")]
         public async Task<IActionResult> DeleteDepartment(int id)
         {
             var department = await _context.Departments.FindAsync(id);
             if (department == null)
             {
-                return NotFound();
+                return NotFound($"Department with ID {id} not found");
             }
 
             _context.Departments.Remove(department);
             await _context.SaveChangesAsync();
 
-            return NoContent(); 
+            return NoContent();
         }
     }
 }
