@@ -99,5 +99,22 @@ namespace CRUDtasks.Controllers
 
             return NoContent();
         }
+
+        [HttpGet]
+        [Route("GetPersonsWithDeptId")]
+        public async Task<IActionResult> GetPersonsWithDeptId(int id)
+        {
+            var department = await _context.Departments.FindAsync(id);
+            if (department == null)
+            {
+                return NotFound($"Department with ID {id} not found");
+            }
+
+            var personsWithDeptIds = await _context.Persons
+                                                  .Where(p => p.DepartmentId == id)
+                                                  .ToListAsync();
+
+            return Ok(personsWithDeptIds);
+        }
     }
 }
